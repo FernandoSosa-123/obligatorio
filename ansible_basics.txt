@@ -1,0 +1,11 @@
+Tarea 5: Responder las siguientes preguntas (10 Puntos)
+1.
+¿Qué es Ansible? Mencione dos actividades que se puedan hacer con Ansible
+2.
+¿Que es un playbook de Ansible?
+3.
+¿Que información contiene un inventario de Ansible?
+4.
+Explique que es un módulo de Ansible y dé un ejemplo.
+5.
+¿Que ventajas tiene Ansible sobre otros métodos de automatización?
