@@ -1,0 +1,66 @@
+{
+    "_meta": {
+        "hostvars": {
+            "centos01": {
+                "ansible_host": "192.168.1.30",
+                "ansible_user": "sysadmin",
+                "apache_service": "httpd",
+                "ssh_service": "sshd"
+            },
+            "ub00": {
+                "ansible_host": "192.168.1.10",
+                "ansible_user": "sysadmin",
+                "apache_service": "apache2",
+                "ssh_service": "ssh"
+            },
+            "ub01": {
+                "ansible_host": "192.168.1.20",
+                "ansible_user": "sysadmin",
+                "apache_service": "apache2",
+                "ssh_service": "ssh"
+            }
+        },
+        "profile": "inventory_legacy"
+    },
+    "all": {
+        "children": [
+            "ungrouped",
+            "workstation",
+            "webserver",
+            "hardening",
+            "linux"
+        ]
+    },
+    "centos": {
+        "hosts": [
+            "centos01"
+        ]
+    },
+    "hardening": {
+        "hosts": [
+            "ub01"
+        ]
+    },
+    "linux": {
+        "children": [
+            "ubuntu",
+            "centos"
+        ]
+    },
+    "ubuntu": {
+        "hosts": [
+            "ub00",
+            "ub01"
+        ]
+    },
+    "webserver": {
+        "hosts": [
+            "centos01"
+        ]
+    },
+    "workstation": {
+        "hosts": [
+            "ub00"
+        ]
+    }
+}
