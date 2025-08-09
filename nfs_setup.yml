@@ -1,48 +1,57 @@
 ---
 - name: NFS
-  hosts: centos
+  hosts: all
   become: true
-  
-  #Usaremos variables para agilizar
   vars:
-    nfs: "192.168.1.30:/nfs_shared"
-    puntomontaje: "/var/nfs_shared"
-    permisosdir: '0777'
-    opcionesnfs: 'rw,sync'
+    directorio: "/var/nfs_shared"
+    opciones: "192.168.1.30/24(rw,sync,root_squash)"
+    permisos: '0777'
     
   tasks:
-    - name: Instalacion en CentOS
+  
+    - name: instalacion de NFS y actualizacion
       ansible.builtin.dnf:
-        name: nfs-utils
+        name:
+          - nfs-utils
         state: latest
-      when: ansible_os_family == 'RedHat'
-      #Aunque el hosts va a ser centos nos aseguramos que este sea de la familia de RedHat 
 
-    - name: Punto de monteaje existe
+
+    - name: creacion de directorio NFS o probar que existe
       ansible.builtin.file:
-        path: "{{ puntomontaje }}"
+        path: "{{ directorio }}"
         state: directory
-        mode: "{{ permisosdir }}"
+        mode: "{{ permisos }}"
         owner: nobody
         group: nobody
-        #Aseguramos que el punto de monaje exista uando las variables creadas dandole permisos y pertenencia adecuadas
 
-        
-    - name: Permitir NFS en firewall
+
+    - name: compartir en /etc/exports
+      ansible.builtin.lineinfile:
+        path: /etc/exports
+        state: present
+        line: '{{ directorio }} {{ permisos }}'
+      notify: reinicio NFS server
+
+
+    - name: compartir export
+      ansible.builtin.command: "exportfs -rav"
+
+
+    - name: permitir en firewall
       ansible.posix.firewalld:
-        port: 2049/tcp
+        service: "{{ item }}"
         state: enabled
         permanent: true
         immediate: true
-        offline: true
-      when: ansible_facts['os_family'] == 'Redhat'
-      #Permitimos que el puerto 2049 en el firewall
-        
-    - name: Montaje del NFS
-      ansible.posix.mount:
-        src: "{{ nfs }}"
-        path: "{{ puntomontaje }}"
-        fstype: nfs
-        opts: "{{ opcionesnfs }}"
-        state: mounted
-        #montamos el NFS
+      with_items:
+        - nfs
+        - mountd
+
+
+  handlers:
+    - name: reinicio NFS server
+      ansible.builtin.service:
+        name: nfs-server
+        state: restarted
+        enabled: true
+...
