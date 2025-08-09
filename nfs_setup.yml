@@ -14,7 +14,7 @@
     - name: Instalacion en CentOS
       ansible.builtin.dnf:
         name: nfs-utils
-        state: present
+        state: latest
       when: ansible_os_family == 'RedHat'
       #Aunque el hosts va a ser centos nos aseguramos que este sea de la familia de RedHat 
 
@@ -29,8 +29,8 @@
         
     - name: Montaje del NFS
       ansible.posix.mount:
-        src: "{{ nfs }}"
-        path: "{{ puntomontaje }}"
+        src: "{{ puntomontaje }}"
+        path: "{{ nfs }}"
         fstype: nfs
         opts: "{{ opcionesnfs }}"
         state: mounted
