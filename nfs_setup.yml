@@ -1,11 +1,12 @@
 ---
 - name: NFS
-  hosts: all
+  hosts: centos
   become: true
   vars:
     directorio: "/var/nfs_shared"
     opciones: "192.168.1.30/24(rw,sync,root_squash)"
     permisos: '0777'
+    #creamos variables que se usaran para mejorar la implementacion
     
   tasks:
   
@@ -14,6 +15,7 @@
         name:
           - nfs-utils
         state: latest
+        #instalamos NFS y si este ya esta instalado es actualizado
 
 
     - name: creacion de directorio NFS o probar que existe
@@ -23,19 +25,24 @@
         mode: "{{ permisos }}"
         owner: nobody
         group: nobody
+        #se crear el directorio y se lo adjudica a nobody y se le da permisos
 
 
     - name: compartir en /etc/exports
       ansible.builtin.lineinfile:
         path: /etc/exports
         state: present
-        line: '{{ directorio }} {{ permisos }}'
+        line: '{{ directorio }} {{ opciones }}'
       notify: reinicio NFS server
+      #creamos a export para darle las opciones al directorio a compartir y mencionamos cambios al handler
 
 
     - name: compartir export
       ansible.builtin.command: "exportfs -rav"
-
+      #porque no encotramos modulo para mantener tabla de directorios compartidos lo harmos por comando
+      #r actualizara /var/lib/nfs/etab con el contenido de /etc/exports
+      #a exporta directorios
+      #v explica vervosamente, por si susede un error
 
     - name: permitir en firewall
       ansible.posix.firewalld:
@@ -46,12 +53,14 @@
       with_items:
         - nfs
         - mountd
+      #los servicos nfs y mountd seran permitidos por el firewall
 
-
+#como visto anterior mente tenemos handleres para reiniciar el servicio por cambios
   handlers:
     - name: reinicio NFS server
       ansible.builtin.service:
         name: nfs-server
         state: restarted
         enabled: true
+
 ...
