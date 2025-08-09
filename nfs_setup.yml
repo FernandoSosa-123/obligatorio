@@ -1,0 +1,47 @@
+---
+- name: NFS
+  hosts: centos
+  become: true
+  
+  #Usaremos variables para agilizar
+  vars:
+    nfs: "192.168.1.30:/nfs_shared"
+    puntomontaje: "/var/nfs_shared"
+    permisosdir: '0777'
+    opcionesnfs: 'rw,sync'
+    
+  tasks:
+    - name: Instalacion en CentOS
+      ansible.builtin.dnf:
+        name: nfs-utils
+        state: present
+      when: ansible_os_family == 'RedHat'
+      #Aunque el hosts va a ser centos nos aseguramos que este sea de la familia de RedHat 
+
+    - name: Punto de monteaje existe
+      ansible.builtin.file:
+        path: "{{ puntomontaje }}"
+        state: directory
+        mode: "{{ permisosdir }}"
+        owner: nobody
+        group: nobody
+        #Aseguramos que el punto de monaje exista uando las variables creadas dandole permisos y pertenencia adecuadas
+        
+    - name: Montaje del NFS
+      ansible.posix.mount:
+        src: "{{ nfs }}"
+        path: "{{ puntomontaje }}"
+        fstype: nfs
+        opts: "{{ opcionesnfs }}"
+        state: mounted
+        #montamos el NFS
+
+    - name: Permitir NFS en firewall
+      ansible.posix.firewalld:
+        port: 2049/tcp
+        state: enabled
+        permanent: true
+        immediate: true
+        offline: true
+      when: ansible_facts['os_family'] == 'Redhat'
+      #Permitimos que el puerto 2049 en el firewall
