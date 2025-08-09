@@ -26,16 +26,8 @@
         owner: nobody
         group: nobody
         #Aseguramos que el punto de monaje exista uando las variables creadas dandole permisos y pertenencia adecuadas
-        
-    - name: Montaje del NFS
-      ansible.posix.mount:
-        src: "{{ nfs }}"
-        path: "{{ puntomontaje }}"
-        fstype: nfs
-        opts: "{{ opcionesnfs }}"
-        state: mounted
-        #montamos el NFS
 
+        
     - name: Permitir NFS en firewall
       ansible.posix.firewalld:
         port: 2049/tcp
@@ -45,3 +37,12 @@
         offline: true
       when: ansible_facts['os_family'] == 'Redhat'
       #Permitimos que el puerto 2049 en el firewall
+        
+    - name: Montaje del NFS
+      ansible.posix.mount:
+        src: "{{ nfs }}"
+        path: "{{ puntomontaje }}"
+        fstype: nfs
+        opts: "{{ opcionesnfs }}"
+        state: mounted
+        #montamos el NFS
