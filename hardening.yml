@@ -8,14 +8,14 @@
   tasks:
 
     - name: Actualizacion del cache con intervalo de una hora
-        ansible.builtin.apt:
-          update_cache: yes
-          cache_valid_time: 3600
-          #Actualizo cache y que este no se actualize por una hora
+      ansible.builtin.apt:
+        update_cache: yes
+        cache_valid_time: 3600
+        #Actualizo cache y que este no se actualize por una hora
           
           
     - name: Actualiza todos los paquetes
-       ansible.builtin.apt:
+      ansible.builtin.apt:
         name: "*"
         state: latest
       notify: Reinicio sistema
@@ -42,9 +42,9 @@
    
     - name: Deshabilitar inicio de sesión basado en contraseña
       ansible.builtin.lineinfile:
-         path: /etc/ssh/sshd_config
-         regexp: '#PasswordAuthentication'
-         line: PasswordAuthentication no
+        path: /etc/ssh/sshd_config
+        regexp: '#PasswordAuthentication'
+        line: PasswordAuthentication no
       notify: Reinicio SSH
       #Edito el archivo de configuracion de SSH para no permitir ingresos con contraseña
       # y solo dejando entrar con llaves
