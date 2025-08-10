@@ -1,9 +1,14 @@
 ---
 - name: Hardening
   hosts: hardening
-  user: "{{ ansible_use }}"
+  user: "{{ ansible_user }}"
   become: yes
-  gather_facts: no
+  gather_facts: yes
+
+  roles:
+    - role: robertdebock.fail2ban
+
+
 
   tasks:
 
@@ -16,35 +21,34 @@
           
     - name: Actualiza todos los paquetes
       ansible.builtin.apt:
-        name: "*"
-        state: latest
+       name: "*"
+       state: latest
       notify: Reinicio sistema
       #Actualizo paquetes y reinicio
         
 
     - name: UFW politica de negar trafico entrante
       community.general.ufw:
-        state: enabled
-        policy: deny
-        direction: incoming
+       state: enabled
+       policy: deny
+       direction: incoming
       notify: Reinicio ufw
-      #Cambio las reglias de entrada del firewall y notifico para que se reinicie
+     #Cambio las reglias de entrada del firewall y notifico para que se reinicie
         
 
     - name: UFW politica de permitir SSH entrante
       community.general.ufw:
-        rule: allow
-        name: OpenSSH
-        direction: incoming
+       rule: allow
+       name: OpenSSH
       notify: Reinicio ufw
       #Cambio las reglias del firewall para permitir SSH y notifico que se reinicie
 
    
     - name: Deshabilitar inicio de sesión basado en contraseña
       ansible.builtin.lineinfile:
-        path: /etc/ssh/sshd_config
-        regexp: '#PasswordAuthentication'
-        line: PasswordAuthentication no
+       path: /etc/ssh/sshd_config
+       regexp: '#PasswordAuthentication'
+       line: PasswordAuthentication no
       notify: Reinicio SSH
       #Edito el archivo de configuracion de SSH para no permitir ingresos con contraseña
       # y solo dejando entrar con llaves
@@ -52,67 +56,13 @@
 
     - name: Deshabilitar el usuario ROOT para login
       ansible.builtin.lineinfile:
-        path: /etc/ssh/sshd_config
-        regexp: '#PermitRootLogin'
-        line: PermitRootLogin no
+       path: /etc/ssh/sshd_config
+       regexp: '#PermitRootLogin'
+       line: PermitRootLogin no
       notify: Reinicio SSH
       #Edito el archivo de configuracion de SSH para no permitir ingresos con root
 
 
-
-
-    - name: Instalacion de fail2ban
-      ansible.builtin.apt:
-        name: fail2ban
-        state: present
-        
-
-    - name: Configurar jail.local para fail2ban 
-      ansible.builtin.template:
-        src: jail.local.j2
-        dest: /etc/fail2ban/jail.local
-        owner: root
-        group: root
-        mode: '0644'
-      notify: Reinicio fail2ban
-      
-
-    - name: fail2ban esta corriendo y esta habilitado
-      ansible.builtin.service:
-        name: fail2ban
-        state: started
-        enabled: yes
-
-
-    - name: Configure fail2ban
-      fail2ban:
-        ignoreip: 127.0.0.1/8
-        bantime: 10m
-        findtime: 10m
-        maxretry: 3
-        backend: auto
-        usedns: warn
-        destemail: root@localhost
-        sendername: Fail2Ban
-        banaction: iptables-multiport
-        mta: sendmail
-        protocol: tcp
-        chain: INPUT
-
-    - name: Configure fail2ban ssh section
-      fail2ban:
-        ssh_enabled: true
-        ssh_port: ssh
-        ssh_filter: sshd
-        ssh_logpath: /var/log/auth.log
-        ssh_maxretry: 6
-
-
-
-
-
-
-    
 
 #handlres para reiniciar servicios y sistema 
   handlers:
@@ -129,12 +79,5 @@
     - name: Reinicio sistema
       ansible.builtin.reboot:
         msg: "Reiniciando sistema"
-
-
-
-    - name: Reinicio fail2ban
-      ansible.builtin.service:
-        name: fail2ban
-        state: restarted
 
 ...
