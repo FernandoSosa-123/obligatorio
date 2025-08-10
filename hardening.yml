@@ -1,6 +1,6 @@
 ---
 - name: Hardening
-  hosts: ubuntu
+  hosts: hardening
   user: "{{ ansible_use }}"
   become: yes
   gather_facts: no
@@ -58,6 +58,62 @@
       notify: Reinicio SSH
       #Edito el archivo de configuracion de SSH para no permitir ingresos con root
 
+
+
+
+    - name: Instalacion de fail2ban
+      ansible.builtin.apt:
+        name: fail2ban
+        state: present
+        
+
+    - name: Configurar jail.local para fail2ban 
+      ansible.builtin.template:
+        src: jail.local.j2
+        dest: /etc/fail2ban/jail.local
+        owner: root
+        group: root
+        mode: '0644'
+      notify: Reinicio fail2ban
+      
+
+    - name: fail2ban esta corriendo y esta habilitado
+      ansible.builtin.service:
+        name: fail2ban
+        state: started
+        enabled: yes
+
+
+    - name: Configure fail2ban
+      fail2ban:
+        ignoreip: 127.0.0.1/8
+        bantime: 10m
+        findtime: 10m
+        maxretry: 3
+        backend: auto
+        usedns: warn
+        destemail: root@localhost
+        sendername: Fail2Ban
+        banaction: iptables-multiport
+        mta: sendmail
+        protocol: tcp
+        chain: INPUT
+
+    - name: Configure fail2ban ssh section
+      fail2ban:
+        ssh_enabled: true
+        ssh_port: ssh
+        ssh_filter: sshd
+        ssh_logpath: /var/log/auth.log
+        ssh_maxretry: 6
+
+
+
+
+
+
+    
+
 #handlres para reiniciar servicios y sistema 
   handlers:
     - name: Reinicio SSH
@@ -74,5 +130,11 @@
       ansible.builtin.reboot:
         msg: "Reiniciando sistema"
 
+
+
+    - name: Reinicio fail2ban
+      ansible.builtin.service:
+        name: fail2ban
+        state: restarted
 
 ...
