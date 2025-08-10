@@ -1,0 +1,78 @@
+---
+- name: Hardening
+  hosts: ubuntu
+  user: "{{ ansible_use }}"
+  become: yes
+  gather_facts: no
+
+  tasks:
+
+    - name: Actualizacion del cache con intervalo de una hora
+        ansible.builtin.apt:
+          update_cache: yes
+          cache_valid_time: 3600
+          #Actualizo cache y que este no se actualize por una hora
+          
+          
+    - name: Actualiza todos los paquetes
+       ansible.builtin.apt:
+        name: "*"
+        state: latest
+      notify: Reinicio sistema
+      #Actualizo paquetes y reinicio
+        
+
+    - name: UFW politica de negar trafico entrante
+      community.general.ufw:
+        state: enabled
+        policy: deny
+        direction: incoming
+      notify: Reinicio ufw
+      #Cambio las reglias de entrada del firewall y notifico para que se reinicie
+        
+
+    - name: UFW politica de permitir SSH entrante
+      community.general.ufw:
+        rule: allow
+        name: OpenSSH
+        direction: incoming
+      notify: Reinicio ufw
+      #Cambio las reglias del firewall para permitir SSH y notifico que se reinicie
+
+   
+    - name: Deshabilitar inicio de sesión basado en contraseña
+      ansible.builtin.lineinfile:
+         path: /etc/ssh/sshd_config
+         regexp: '#PasswordAuthentication'
+         line: PasswordAuthentication no
+      notify: Reinicio SSH
+      #Edito el archivo de configuracion de SSH para no permitir ingresos con contraseña
+      # y solo dejando entrar con llaves
+      
+
+    - name: Deshabilitar el usuario ROOT para login
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '#PermitRootLogin'
+        line: PermitRootLogin no
+      notify: Reinicio SSH
+      #Edito el archivo de configuracion de SSH para no permitir ingresos con root
+
+#handlres para reiniciar servicios y sistema 
+  handlers:
+    - name: Reinicio SSH
+      service:
+        name:  "{{ ssh_service }}"
+        state: restarted
+
+    - name: Reinicio ufw
+      service:
+        name:  ufw
+        state: restarted
+
+    - name: Reinicio sistema
+      ansible.builtin.reboot:
+        msg: "Reiniciando sistema"
+
+
+...
