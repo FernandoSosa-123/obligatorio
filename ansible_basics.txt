@@ -1,11 +1,84 @@
-Tarea 5: Responder las siguientes preguntas (10 Puntos)
-1.
-¿Qué es Ansible? Mencione dos actividades que se puedan hacer con Ansible
-2.
-¿Que es un playbook de Ansible?
-3.
-¿Que información contiene un inventario de Ansible?
-4.
-Explique que es un módulo de Ansible y dé un ejemplo.
-5.
-¿Que ventajas tiene Ansible sobre otros métodos de automatización?
+Preguntas 
+
+¿Qué es Ansible? 
+
+Ansible es una tecnología útil para la automatización de configuraciones en entornos de infraestructura, haciendo que este proceso sea mucho mas eficiente. 
+Permite gestionar equipos remotos centralizándolos desde un bastión central. La ventaja de emplear este sistema radica en la posibilidad que brinda de 
+administrar varios equipos a la vez de forma generalizada. 
+
+Ansible cuenta con ciertos componentes claves, tales como: > Inventario 
+
+							   > Playbooks 
+
+							   > Módulos 
+
+							   > Roles 
+
+Esta tecnología es compatible con entornos de Linux y Windows. 
+
+Funciones: > Automatización de configuraciones 
+
+	   > Ejecución de comandos ad-hoc 
+
+	   > Creación de ambientes específicos y optimizados 
+
+ 
+
+¿Que es un playbook de Ansible? 
+
+Los playbooks de ansible son archivos con extension .yml los cuales contienen instrucciones a modo de pseudocódigo que serán ejecutadas por el programa.
+Estas tareas definen las configuraciones que serán llevadas a cabo en los servidores que están siendo administrados bajo el control del bastión.  
+Dentro de los playbooks se incorporan varios de los elementos que componen a la herramienta; por ejemplo se define el inventario sobre el que va a actuar y 
+los módulos que va a emplear para hacer la gestión sobre los hosts. 
+
+ 
+
+¿Que información contiene un inventario de Ansible? 
+
+Dentro de un inventario de ansible se encuentra todo el ecosistema sobre el que la herramienta es capaz de actuar, es posible detallar nombres de hosts 
+asilados o formar grupos de equipos para estandarizar configuraciones; también se pueden establecer sub grupos, que son grupos dentro de otros grupos, y 
+definir variables que van a actuar en ciertos sistemas. 
+
+Funciones: > Organizar 
+
+	   > Ejecutar tareas en ciertos hosts en concreto 
+
+	   > Agrupar y generalizar configuraciones 
+
+ 
+
+¿Que es un módulo de ansible? 
+
+En ansible, los módulos son las herramientas a través de las cuales esta tecnología es capaz de interactuar con los equipos que gestiona. Existen varios 
+módulos para llevar a cabo diferentes tareas especificas; algunos de ellos son propios de la aplicación, es decir, BuiltIn; mientras que otros son externos y
+deben ser integrados de forma manual. A menudo estos módulos externos son creados por la comunidad para suplir las necesidades de realizar ciertas tareas 
+concretas las cuales no pueden ser ejecutadas mediante los módulos autóctonos de Ansible. 
+
+Es posible añadir módulos a ansible mediante el uso del componente ansible-galaxy. Estos módulos pueden ser hechos en bash o python y se distribuyen a treves
+de colecciones. 
+
+Módulos BuiltIn: > Apt/dnf-yum 
+
+		 > shell 
+
+		 > Lineinfile 
+
+Módulos externos: > Community.general.ufw 
+
+		  > Community.mysql.mysql_user 
+
+		  > Azure.collection.azure_rm_vm 
+
+ 
+
+¿Que ventajas tiene Ansible sobre otros métodos de automatización? 
+
+* Es agent-less, no es necesario instalar componentes en los equipos que van a ser gestionados por la herramienta; únicamente deben contar con SSH. 
+
+* Es escalable, permite la adaptación frente a el crecimiento de la infraestructura. 
+
+* Es compatible con GIT, lo que ayuda a la creación de configuraciones en grupo. 
+
+* Cuenta con una comunidad activa sobre la cual es posible apoyarse preguntando y colaborando sobre diferentes temas y proyectos. 
+
+* Esta soportado por Red Hat. 
