@@ -6,7 +6,7 @@
   gather_facts: yes
 
   vars:
-    directorio: "/etc/fail2ban/"
+    directorio: "/etc/fail2ban"
     permisos: '0644'
     #Definimos variables a usar
   
@@ -35,8 +35,9 @@
 
     - name: Copiar el archivo de configuracion de fail2ban
       ansible.builtin.copy:
-        src:  "{{ directorio }}"jail.conf
-        dest:  "{{ directorio }}"jail.local
+        src: "{{ directorio }}/fail2ban.conf"
+        dest: "{{ directorio }}/fail2ban.local"
+        remote_src: yes
         owner: root
         group: root
         mode: "{{ permisos }}"
@@ -44,7 +45,7 @@
         
     - name: Deshabilitar inicio de sesión basado en contraseña
       ansible.builtin.lineinfile:
-       path: "{{ directorio }}"jail.local
+       path: "{{ directorio }}/fail2ban.local"
        regexp: "{{ item.regexp }}"
        line: "{{ item.line }}"
       loop:
