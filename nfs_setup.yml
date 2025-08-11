@@ -25,7 +25,7 @@
         mode: "{{ permisos }}"
         owner: nobody
         group: nobody
-        #se crear el directorio y se lo adjudica a nobody y se le da permisos
+        #se crea el directorio, se lo adjudica a nobody y se le da permisos
 
 
     - name: compartir en /etc/exports
@@ -39,10 +39,10 @@
 
     - name: compartir export
       ansible.builtin.command: "exportfs -rav"
-      #porque no encotramos modulo para mantener tabla de directorios compartidos lo harmos por comando
+      #porque no encotramos modulo para mantener tabla de directorios compartidos lo haremos por comando
       #r actualizara /var/lib/nfs/etab con el contenido de /etc/exports
       #a exporta directorios
-      #v explica vervosamente, por si susede un error
+      #v explica vervosamente, por si sucede un error
 
     - name: permitir en firewall
       ansible.posix.firewalld:
@@ -53,9 +53,9 @@
       with_items:
         - nfs
         - mountd
-      #los servicos nfs y mountd seran permitidos por el firewall
+      #los servicios nfs y mountd seran permitidos por el firewall
 
-#como visto anterior mente tenemos handleres para reiniciar el servicio por cambios
+#como visto anteriormente tenemos handleres para reiniciar el servicio por cambios
   handlers:
     - name: reinicio NFS server
       ansible.builtin.service:
