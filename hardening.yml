@@ -5,18 +5,18 @@
   become: yes
   gather_facts: yes
 
-  roles:
-    - role: robertdebock.fail2ban
-
-
-
+  vars:
+    directorio: "/etc/fail2ban/"
+    permisos: '0644'
+    #Definimos variables a usar
+  
   tasks:
 
     - name: Actualizacion del cache con intervalo de una hora
       ansible.builtin.apt:
         update_cache: yes
         cache_valid_time: 3600
-        #Actualizo cache y que este no se actualize por una hora
+      #Actualizo cache y que este no se actualize por una hora
           
           
     - name: Actualiza todos los paquetes
@@ -25,7 +25,44 @@
        state: latest
       notify: Reinicio sistema
       #Actualizo paquetes y reinicio
+
+
+    - name: Instalacion de fail2ban
+      ansible.builtin.apt:
+        name: fail2ban
+        state: latest
+        #Instalamos a fail2ban
+
+    - name: Copiar el archivo de configuracion de fail2ban
+      ansible.builtin.copy:
+        src:  "{{ directorio }}"jail.conf
+        dest:  "{{ directorio }}"jail.local
+        owner: root
+        group: root
+        mode: "{{ permisos }}"
+        #Copiamos el archivo de configuracion ya que este se posible que se cambiara al actualizarse
         
+    - name: Deshabilitar inicio de sesión basado en contraseña
+      ansible.builtin.lineinfile:
+       path: "{{ directorio }}"jail.local
+       regexp: "{{ item.regexp }}"
+       line: "{{ item.line }}"
+      loop:
+        - { regexp: '^bantime =', line: 'bantime = 1' }
+        - { regexp: '^findtime =', line: 'findtime = 1m' }
+        - { regexp: '^maxretry =', line: 'maxretry = 3' }
+      notify: Reinicio fail2ban
+     #Cambiamos el varias linias en el archivo de configuracion asiendo usos de loop para buscar las linas a cambiar
+     #Varios de estos cambios se hacen para mejor probar y cumplir con lo estipulado, luego de estos sericiara el servicio
+
+     
+    - name: Aseguramos que fail2ban esta iniciado y abilitado
+      service:
+        name: fail2ban
+        state: started
+        enabled: yes
+        #Nos aseguramos que fail2ban esta iniciado y abilitado
+      
 
     - name: UFW politica de negar trafico entrante
       community.general.ufw:
@@ -76,8 +113,12 @@
         name:  ufw
         state: restarted
 
+    - name: Reinicio fail2ban
+      service:
+        name:  fail2ban
+        state: restarted
+
     - name: Reinicio sistema
       ansible.builtin.reboot:
         msg: "Reiniciando sistema"
-
 ...
