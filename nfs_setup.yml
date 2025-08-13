@@ -27,6 +27,23 @@
         group: nobody
         #se crea el directorio, se lo adjudica a nobody y se le da permisos
 
+    - name: Modificacion de /etc/nfs.conf
+      lineinfile:
+        path: /etc/nfs.conf
+        regexp: "# port="
+        line: "port=13025"
+        #Cambiamos a que habilite el port
+
+    - name: Modificacion de pruertos en el firewall
+      ansible.posix.firewalld:
+        port: 
+            - 111/tcp
+            - 2049/tcp
+            - 13025/tcp
+        permanent: true
+        state: enable
+      notify: Reinicio de firewalld 
+        
 
     - name: compartir en /etc/exports
       ansible.builtin.lineinfile:
@@ -62,5 +79,10 @@
         name: nfs-server
         state: restarted
         enabled: true
+
+    - name: Reinicio de firewalld
+      ansible.builtin.service:
+        name: firewalld
+        state: reloaded
 
 ...
