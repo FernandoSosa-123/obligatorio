@@ -39,7 +39,10 @@
         port: "{{ item }}"
         permanent: true
         state: enabled
-        loop: { "111/tcp", "2049/tcp", "13025/tcp" }
+        loop:
+         - 111/tcp
+         - 2049/tcp
+         - 13025/tcp
       notify: Reinicio de firewalld 
         
 
