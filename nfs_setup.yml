@@ -36,7 +36,7 @@
 
     - name: Modificacion de pruertos en el firewall
       ansible.posix.firewalld:
-        port: "{{ item.line }}"
+        port: "{{ item }}"
         permanent: true
         state: enabled
         loop:
