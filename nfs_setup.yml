@@ -36,12 +36,11 @@
 
     - name: Modificacion de pruertos en el firewall
       ansible.posix.firewalld:
-        port: 
-            - 111/tcp
-            - 2049/tcp
-            - 13025/tcp
+        port: "{{ item.line }}"
         permanent: true
-        state: enable
+        state: enabled
+        loop:
+        - { "111/tcp", "2049/tcp", "13025/tcp" }
       notify: Reinicio de firewalld 
         
 
